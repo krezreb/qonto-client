@@ -30,23 +30,30 @@ class QontoClient():
     # SEE https://api-doc.qonto.com/docs/business-api/b3A6ODQxOTQyNw-list-transactions
     def transactions(self, page=1, filters={}):
         url = '{}/v2/transactions?iban={}'.format(self.API_ROOT, self.iban)
-        for k,v in filters:
+        for k,v in filters.items():
             if type(v) is list:
                 for vv in v:
                     url+= "&{}[]={}".format(k,vv)
             if type(v) is datetime:
-                url+= "&{}={}".format(k,v.replace(tzinfo=datetime.timezone.utc).isoformat())
+                url+= "&{}={}".format(k,v.replace(tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%m:%S.000Z"))
             else:
                 url+= "&{}={}".format(k,v)
         if page > 1:
             url+= "&page={}".format(page)
         headers = self.auth()
         r = requests.get(url, headers=headers)
+        print(url)
         for t in r.json()['transactions']:
             yield t
 
         if r.json()['meta']['current_page'] < r.json()['meta']['total_pages']:
             yield from self.transactions(page=page+1, filters=filters)
+
+    # SEE https://api-doc.qonto.com/docs/business-api/b3A6ODQxOTQyNw-list-transactions
+    def show_transaction(self, transaction_id):
+        url = '{}/v2/transactions/{}'.format(self.API_ROOT, transaction_id)
+        r = requests.get(url, headers=self.auth())
+        return r.json()['transaction']
 
     def get_account(self) -> None:
         if self.account == None:
@@ -70,10 +77,14 @@ class QontoClient():
         self.get_account()
         return self.account["currency"]
 
+    def attachment_urls(self, transaction_id):
+        url = '{}/v2/transactions/{}/attachments'.format(self.API_ROOT, transaction_id)
+        r = requests.get(url, headers=self.auth())
+        for att in r.json()["attachments"]:
+            yield att["url"], att["file_name"], att['id']
 
 class QontoOfxTransaction():
     def __init__(self, j={}):
-
 
         if j["operation_type"] == "qonto_fee":
             self.TRNTYPE = "FEE"
@@ -138,6 +149,7 @@ class QontoOfx():
         self.transactions = []
         self.transactions_dtstart = None
         self.transactions_dtend = None
+        self.transactions_dtend = None
 
 
     def acctfrom(self):
@@ -148,19 +160,26 @@ class QontoOfx():
             acctkey=self.iban["account_code"][-2:],
             branchid=self.iban["account_code"][0:5]) 
 
-
-
-
-    def stmtrs(self,):
-        return STMTRS(curdef=self.curdef, bankacctfrom=self.acctfrom(),
-            ledgerbal=self.ledgerbal(),
-            banktranlist=self.banktranlist())
-
     def ledgerbal(self):
         return  LEDGERBAL(balamt="{:.2f}".format(self.balance),  dtasof=self.balancedt)
 
     def banktranlist(self):
         return BANKTRANLIST(*self.transactions, dtstart=self.transactions_dtstart, dtend=self.transactions_dtend)
+
+
+    def stmttrnrs(self, trnuid='XXXXX', status_code=0, status_severity='INFO'):
+        return STMTTRNRS(trnuid=trnuid, status=self.status(status_code, status_severity), stmtrs=self.stmtrs())
+
+    def stmtrs(self,):
+        return STMTRS(curdef=self.curdef, bankacctfrom=self.acctfrom(),
+            ledgerbal=self.ledgerbal(),
+            banktranlist=self.banktranlist())
+            
+    def status(self, code=0, severity='INFO'):
+        return  STATUS(code=code, severity=severity)
+
+    def fi(self):
+        return FI(org='QONTO')
 
     def add_transaction(self, tr: QontoOfxTransaction):
 
@@ -176,14 +195,6 @@ class QontoOfx():
 
         self.transactions.append(tr.get())
 
-    def stmttrnrs(self, trnuid='XXXXX', status_code=0, status_severity='INFO'):
-        return STMTTRNRS(trnuid=trnuid, status=self.status(status_code, status_severity), stmtrs=self.stmtrs())
-
-    def status(self, code=0, severity='INFO'):
-        return  STATUS(code=code, severity=severity)
-
-    def fi(self):
-        return FI(org='QONTO')
 
     def export(self, pretty=False):
 
