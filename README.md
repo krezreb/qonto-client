@@ -23,7 +23,7 @@ You'll also need your IBAN, upper case without spaces
 Set `ID`, `KEY`, `IBAN` environment variables
 
 ```
-export ID=your_org-id-12345
+export ID=your_org-12345
 export KEY=YOURSECRETKEY12345678
 export IBAN=FR7612345000019876543212345
 ```
