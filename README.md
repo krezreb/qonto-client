@@ -9,14 +9,18 @@ Provides a basic interface for querying and exporting Qonto transactions
 
 # Installation
 
-`pip3 install  --user -r requirements.txt`
+```
+git clone https://github.com/krezreb/qonto-client.git
+cd qonto-client
+pip3 install  --user -r requirements.txt
+```
 
-# Usage
+# Exporting OFX 
 
-Go to this URL to get your api Key and Secret key
-https://app.qonto.com/organizations/your_organization/settings/integrations
-
+A script to export to OFX is provided, you'll need your Qonto API ID and secret key, available in your Qonto settings
 You'll also need your IBAN, upper case without spaces
+
+Set `ID`, `KEY`, `IBAN` environment variables
 
 ```
 export ID=your_org-id-12345
@@ -36,4 +40,8 @@ All options available via the `--help` command
   
 `python3 export_ofx.py --help`
   
-  
+# Found a BUG, need a feature?
+
+This project was written over a weekend because of a last minute requirement.  Documentation and features are sketchy.
+If you found a problem with the code or want a new feature, Open an issue
+
