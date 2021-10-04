@@ -1,6 +1,6 @@
 # Qonto python client
 
-Provides a basic interface for querying and exporting Qonto transactions
+Provides a basic interface for querying and exporting Qonto transactions using the [v2 API](https://api-doc.qonto.com/docs/business-api/ZG9jOjI5NjA5OQ-getting-started)
 
 # Requirements
 
@@ -43,5 +43,5 @@ All options available via the `--help` command
 # Found a BUG, need a feature?
 
 This project was written over a weekend because of a last minute requirement.  Documentation and features are sketchy.
-If you found a problem with the code or want a new feature, Open an issue
+If you found a problem with the code or want a new feature, Open an issue 🍺 ☕
 
