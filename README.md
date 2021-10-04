@@ -14,7 +14,7 @@ Provides a basic interface for querying and exporting Qonto transactions
 # Usage
 
 Go to this URL to get your api Key and Secret key
-https://app.qonto.com/organizations/<your organization>/settings/integrations
+https://app.qonto.com/organizations/your_organization/settings/integrations
 
 You'll also need your IBAN, upper case without spaces
 
