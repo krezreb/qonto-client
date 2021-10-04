@@ -3,6 +3,7 @@
 from qonto import QontoClient, QontoOfx, QontoOfxTransaction
 import os, argparse, requests, zipfile
 from datetime import datetime, timezone
+import shutil
 
 ID=os.getenv("ID")
 IBAN=os.getenv("IBAN")
@@ -112,3 +113,4 @@ if args.zip:
             os.path.join(args.dir, '..')))
 
     zipf.close()
+    shutil.rmtree(args.dir)
