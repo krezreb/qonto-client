@@ -1,7 +1,7 @@
 #!/bin/env python3
 
 from qonto import QontoClient, QontoOfx, QontoOfxTransaction
-import os, argparse, requests
+import os, argparse, requests, zipfile
 from datetime import datetime, timezone
 
 ID=os.getenv("ID")
@@ -15,6 +15,8 @@ parser.add_argument('--out', default=None, help='directory to save ofx file to')
 parser.add_argument('--pretty', action='store_true', help='pretty format ofx file')
 parser.add_argument('--start-date', default=None, help='fetch transactions on or after UTC date expressed as YYYY-MM-DD')
 parser.add_argument('--end-date', default=None, help='fetch transactions on or before UTC  date expressed as YYYY-MM-DD')
+parser.add_argument('--last-month', action='store_true', help='fetch transactions from last completed month')
+parser.add_argument('--zip', action='store_true', help='Zip export into a single file')
 
 args = parser.parse_args()
 
@@ -26,6 +28,11 @@ Q = QontoClient(
 
 QO = QontoOfx(iban=IBAN, curdef=Q.currency(), balance=Q.balance(), balancedt=Q.balancedt())
 
+if args.dir == None:
+    N = datetime.now()
+    args.dir = "{}-{}-{}_{}-{}-{}_{}_qonto".format(N.year, N.month, N.day, N.hour, N.minute, N.second, ID)
+
+
 if args.dir != None:
     if not os.path.isdir(args.dir):
         os.makedirs(args.dir)
@@ -33,6 +40,19 @@ if args.dir != None:
 attachment_num = 0
 
 filters = {}
+
+if args.last_month:
+    now = datetime.now()
+    Y_1 = now.year
+    M_1 = now.month-1
+    if M_1 == 0:
+        M_1 = 12
+        Y_1 = now.year - 1
+
+    args.start_date = "{}-{}-01".format(Y_1, M_1)
+    args.end_date = "{}-{}-01".format(now.year, now.month)
+
+
 if args.start_date != None:
     Y, M, D = args.start_date.split("-")
     filters["settled_at_from"] = datetime(int(Y),int(M),int(D), hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
@@ -82,3 +102,13 @@ else:
         fh.write(ofx)
 
     
+if args.zip:
+    zipf = zipfile.ZipFile('{}.zip'.format(args.dir), 'w', zipfile.ZIP_DEFLATED)
+
+    for root, dirs, files in os.walk(args.dir):
+        for file in files:
+            zipf.write(os.path.join(root, file), 
+            os.path.relpath(os.path.join(root, file), 
+            os.path.join(args.dir, '..')))
+
+    zipf.close()

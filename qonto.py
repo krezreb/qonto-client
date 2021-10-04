@@ -1,14 +1,13 @@
 #!/bin/env python3
 
 import requests
-from datetime import datetime, timezone, tzinfo, timedelta
+from datetime import datetime, timezone
 
 from ofxtools.models import *
 from ofxtools.utils import UTC
 from ofxtools.header import make_header
 import xml.etree.ElementTree as ET
 
-from decimal import Decimal
 from schwifty import IBAN
 from dateutil import tz
 import lxml.etree as etree
