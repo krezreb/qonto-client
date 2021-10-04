@@ -9,7 +9,7 @@ Provides a basic interface for querying and exporting Qonto transactions
 
 # Installation
 
-pip3 install  --user -r requirements.txt
+`pip3 install  --user -r requirements.txt`
 
 # Usage
 
@@ -26,4 +26,14 @@ export IBAN=FR7612345000019876543212345
 
 Export all transactions as OFX format
 
-`python3 export_ofx.py --attachments `
+`python3 export_ofx.py`
+  
+Export all transactions from last month as OFX format
+
+`python3 export_ofx.py --last-month`
+
+All options available via the `--help` command
+  
+`python3 export_ofx.py --help`
+  
+  
