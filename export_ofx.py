@@ -1,7 +1,7 @@
 #!/bin/env python3
 
 from qonto import QontoClient, QontoOfx, QontoOfxTransaction
-import os, argparse, requests, zipfile
+import os, argparse, requests, zipfile, json
 from datetime import datetime, timezone
 import shutil
 
@@ -14,6 +14,7 @@ parser.add_argument('--attachments', action='store_true', help='export attachmen
 parser.add_argument('--dir', default=None, help='directory to save ofx file to')
 parser.add_argument('--out', default=None, help='directory to save ofx file to')
 parser.add_argument('--pretty', action='store_true', help='pretty format ofx file')
+parser.add_argument('--json', action='store_true', help='include a json version for reference')
 parser.add_argument('--start-date', default=None, help='fetch transactions on or after UTC date expressed as YYYY-MM-DD')
 parser.add_argument('--end-date', default=None, help='fetch transactions on or before UTC  date expressed as YYYY-MM-DD')
 parser.add_argument('--last-month', action='store_true', help='fetch transactions from last completed month')
@@ -62,8 +63,14 @@ if args.end_date != None:
     Y, M, D = args.end_date.split("-")
     filters["settled_at_to"] = datetime(int(Y),int(M),int(D), hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
 
+
+if args.json:
+    J = []
+
 for t in Q.transactions(filters=filters):
     QO.add_transaction(QontoOfxTransaction(t))
+    if args.json:
+        J.append(t)
     if args.attachments:
         for url, filename, attachment_id in Q.attachment_urls(t["id"]):
             attachment_num+=1
@@ -101,6 +108,10 @@ else:
 
     with open(outfn, "w") as fh:
         fh.write(ofx)
+
+    if args.json:
+        with open(outfn+".json", "w") as fh:
+            json.dump(J, fh, indent=4)
 
     
 if args.zip:

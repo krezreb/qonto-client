@@ -101,7 +101,7 @@ class QontoOfxTransaction():
             self.TRNTYPE = "CREDIT"
 
         self.DTPOSTED = datetime.strptime(j["settled_at"], "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=tz.tzutc()) # 2020-02-25T08:01:48.727Z
-        self.TRNAMT = j["local_amount"]
+        self.TRNAMT = j["amount"]
         if j["side"] == "debit":
             self.TRNAMT = -self.TRNAMT
         self.FITID = j["transaction_id"]
