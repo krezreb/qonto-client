@@ -1,4 +1,7 @@
 __pycache__
 .envrc
+.envrc-dev
 test
 *zip
+dist
+qonto_client.egg-info

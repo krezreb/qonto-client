@@ -1,6 +1,8 @@
 #!/bin/env python3
 
-from qonto import QontoClient, QontoOfx, QontoOfxTransaction
+# -*- coding: utf-8 -*-
+
+from qonto_client import QontoClient, QontoOfx, QontoOfxTransaction
 import os, argparse, requests, zipfile, json
 from datetime import datetime, timezone
 import shutil

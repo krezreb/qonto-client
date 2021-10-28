@@ -10,6 +10,10 @@ Provides a basic interface for querying and exporting Qonto transactions using t
 # Installation
 
 ```
+pip install qonto_client
+```
+
+```
 git clone https://github.com/krezreb/qonto-client.git
 cd qonto-client
 pip3 install  --user -r requirements.txt
