@@ -19,10 +19,9 @@ cd qonto-client
 pip3 install  --user -r requirements.txt
 ```
 
-# Exporting OFX 
+# Configuring Qonto API access
 
-A script to export to OFX is provided, you'll need your Qonto API ID and secret key, available in your Qonto settings
-You'll also need your IBAN, upper case without spaces
+To use the export export scripts, you'll need your Qonto API ID and secret key, available in your Qonto settings.  You'll also need your IBAN, upper case without spaces
 
 Set `ID`, `KEY`, `IBAN` environment variables
 
@@ -32,7 +31,22 @@ export KEY=YOURSECRETKEY12345678
 export IBAN=FR7612345000019876543212345
 ```
 
-Export all transactions as OFX format
+# Exporting to Excel
+
+A script to export to Excel is provided
+
+To Export all transactions:
+
+`python3 export_xlsx.py`
+
+Export all transactions from last month 
+
+`python3 export_xlsx.py --last-month`
+
+
+# Exporting OFX 
+
+A script to export to OFX is provided, Export all transactions as OFX format
 
 `python3 export_ofx.py`
   

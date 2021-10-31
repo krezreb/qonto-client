@@ -12,6 +12,8 @@ from schwifty import IBAN
 from dateutil import tz
 import lxml.etree as etree
 
+from collections import OrderedDict
+
 class QontoClient():
 
     API_ROOT = "https://thirdparty.qonto.com"
@@ -116,6 +118,56 @@ class QontoOfxTransaction():
         if self.MEMO == None:
             return STMTTRN(trntype=self.TRNTYPE, dtposted=self.DTPOSTED, trnamt="{:.2f}".format(self.TRNAMT), fitid=self.FITID, name=self.NAME)
         return STMTTRN(trntype=self.TRNTYPE, dtposted=self.DTPOSTED, trnamt="{:.2f}".format(self.TRNAMT), fitid=self.FITID, name=self.NAME, memo=self.MEMO)
+
+
+class QontoXlsx():
+    pass
+
+class QontoXlsxTransaction():
+    
+    @staticmethod
+    def cols(): 
+        return OrderedDict({
+        "settled_at" : "date",
+        "label" : "label",
+        "note" : "note",
+        "operation_type" : "type",
+        "category" : "category",
+        "amount" : "amount",
+        "currency" : "currency",
+        "vat_amount" : "vat amount",
+        "local_amount" : "foreign amount",
+        "local_currency" : "foreign currency",
+        "transaction_id" : "transaction id"
+        })
+
+    def __init__(self, j={}):
+        self.tr = OrderedDict()
+
+        for c in QontoXlsxTransaction.cols().keys():
+            self.tr[c] = j[c]
+
+        if j["side"] == "debit":
+            self.tr["amount"] = -self.tr["amount"]
+            self.tr["local_amount"] = -self.tr["local_amount"]
+        else:
+            if self.tr["vat_amount"] != None:   
+                self.tr["vat_amount"] = -self.tr["vat_amount"]
+
+        if self.tr["currency"] == self.tr["local_currency"]:
+            self.tr["local_currency"] = None
+            self.tr["local_amount"] = None
+
+        if j["reference"] != None:
+            self.tr["note"] = j["reference"]
+
+        self.tr["settled_at"] = datetime.strptime(j["settled_at"], "%Y-%m-%dT%H:%M:%S.%fZ") # 2020-02-25T08:01:48.727Z
+
+
+
+    def get(self):
+        return self.tr
+
 
 
 class InvalidIban(Exception):
